@@ -48,15 +48,18 @@ const CreateEmployee = ()=>{
             <Button icon="upload" mode="contained" theme={theme} onPress={() => setModal(true)}>
                 Upload Image
             </Button>
+            <Button icon="save" mode="contained" theme={theme} onPress={() => console.log("saved")}>
+                Saved
+            </Button>
 
             <Modal animationType="slide" transparent={false} visible={modal} onRequestClose={()=>{setModal(false)
             }}>
                 <View style={styles.modalView}>
                     <View style={styles.modalButtonView}>
-                            <Button icon="camera" mode="contained" theme={theme} onPress={() => setModal(false)}>
+                            <Button icon="camera" mode="contained" theme={theme} onPress={() => console.log("presses")}>
                                 Camera
                             </Button>
-                            <Button icon="gallery" mode="contained" theme={theme} onPress={() => setModal(false)}>
+                            <Button icon="image-area" mode="contained" theme={theme} onPress={() => console.log("presses")}>
                               Gallery
                             </Button>
                     </View>

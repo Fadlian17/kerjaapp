@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View,Image,FlatList } from 'react-native';
 import {Card,FAB} from 'react-native-paper'
 
-const Home = ()=>{
+const Home = (props)=>{
     const data = [
         {id:1,name:"Indra",position:"Developer"},
         {id:2,name:"Dimas",position:"Designer"},
@@ -43,12 +43,11 @@ const Home = ()=>{
                 }}
                 keyExtractor={item=>`${item.id}`}
             />
-           <FAB
+           <FAB onPress={()=>props.navigation.navigate("Create")}
             style={styles.fab}
             small
             icon="plus"
             theme={{colors:{accent:"#006aff"}}}
-            onPress={() => console.log('Pressed')}
         />
         </View>
     )
