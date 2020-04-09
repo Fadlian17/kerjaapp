@@ -1,6 +1,8 @@
 import React,{useState} from 'react';
-import { StyleSheet, Text, View,Modal } from 'react-native';
+import { StyleSheet, Text, View,Modal,Alert } from 'react-native';
 import {TextInput,Button} from 'react-native-paper'
+import * as ImagePicker from 'expo-image-picker';
+import * as Permissions from 'expo-permissions';
 
 const CreateEmployee = ()=>{
     const [Name,setName] = useState("")
@@ -9,6 +11,38 @@ const CreateEmployee = ()=>{
     const [salary,setSalary] = useState("")
     const [picture,setPicture] = useState("")
     const [modal,setModal] = useState(false)
+
+const pickFromGallery = async ()=>{
+    const {granted} = await Permissions.askAsync(Permissions.CAMERA_ROLL)
+    if(granted){
+        let data = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes:ImagePicker.MediaTypeOptions.Images,
+            allowsEditing:true,
+            aspect:[1,1],
+            quality:0.5
+        })
+        console.log(data)
+    }else{
+        Alert.alert("you need to give a permission to work")
+    }
+}
+
+const pickFromCamera = async ()=>{
+    const {granted} = await Permissions.askAsync(Permissions.CAMERA)
+    if(granted){
+        let data = await ImagePicker.launchCameraAsync({
+            mediaTypes:ImagePicker.MediaTypeOptions.Images,
+            allowsEditing:true,
+            aspect:[1,1],
+            quality:0.5
+        })
+        console.log(data)
+    }else{
+        Alert.alert("you need to give a permission to work")
+    }
+}
+
+
     return(
         <View style={styles.root}>
             <TextInput
@@ -45,10 +79,10 @@ const CreateEmployee = ()=>{
                     onChangeText={text => setSalary(text)}
             />
 
-            <Button icon="upload" mode="contained" theme={theme} onPress={() => setModal(true)}>
+            <Button icon="upload" mode="contained" style={styles.inputStyle} theme={theme} onPress={() => setModal(true)}>
                 Upload Image
             </Button>
-            <Button icon="save" mode="contained" theme={theme} onPress={() => console.log("saved")}>
+            <Button icon="content-save" mode="contained" style={styles.inputStyle} theme={theme} onPress={() => console.log("saved")}>
                 Saved
             </Button>
 
@@ -56,10 +90,10 @@ const CreateEmployee = ()=>{
             }}>
                 <View style={styles.modalView}>
                     <View style={styles.modalButtonView}>
-                            <Button icon="camera" mode="contained" theme={theme} onPress={() => console.log("presses")}>
+                            <Button icon="camera" mode="contained" theme={theme} onPress={() => pickFromCamera()}>
                                 Camera
                             </Button>
-                            <Button icon="image-area" mode="contained" theme={theme} onPress={() => console.log("presses")}>
+                            <Button icon="image-area" mode="contained" theme={theme} onPress={() => pickFromGallery()}>
                               Gallery
                             </Button>
                     </View>

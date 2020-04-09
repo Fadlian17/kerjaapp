@@ -1,10 +1,12 @@
-import React,{useState} from 'react';
+import React from 'react';
 import { StyleSheet, Text, View,Image,Linking,Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Title,Card,Button } from 'react-native-paper'
 import {MaterialIcons,Entypo} from '@expo/vector-icons'
 
-const Profile = ()=>{
+const Profile = (props)=>{
+
+    const {id,name,picture,phone,salary,email,position} = props.route.params.item
 
     const openDial=()=>{
         if(Platform.OS === "android"){
@@ -23,38 +25,38 @@ const Profile = ()=>{
             />
             <View style={{alignItems:"center"}}>
             <Image
-                style={{width:100,height:100,borderRadius:150,marginTop:-50}}
-                source={{uri:"https://images.unsplash.com/photo-1529068755536-a5ade0dcb4e8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1002&q=80"}}
-
+                style={{width:100,height:100,borderRadius:140/2,marginTop:-50}}
+                source={{uri:picture}}
             />
             </View>
             
             <View style={{alignItems:"center",margin:15}}>
-                <Title>Alfansyah</Title>
-                <Title style={{fontSize:15}}>UIUX Designer</Title>
+                <Title>{name}</Title>
+                <Title style={{fontSize:15}}>{position}</Title>
             </View>
             <Card style={styles.mycard} onPress={()=>{Linking.openURL("mailto:alfa@admin.com")}}>
                 <View style={styles.cardContent}>
                     <MaterialIcons name="email" size={32} color="#006aff" />
-                    <Text style={styles.mytext}>alfa@admin.com</Text> />
+                    <Text style={styles.mytext}>{email}</Text>
                 </View>
             </Card>
             <Card style={styles.mycard} onPress={()=>openDial()}>
                 <View style={styles.cardContent}>
                     <Entypo name="phone" size={32} color="#006aff" />
-                    <Text style={styles.mytext}>623412</Text> />
+                    <Text style={styles.mytext}>{phone}</Text>
+
                 </View>
             </Card>
             <Card style={styles.mycard}>
                 <View style={styles.cardContent}>
                     <MaterialIcons name="attach-money" size={32} color="#006aff" />
-                    <Text style={styles.mytext}>Rp. 8.000.000</Text> />
+                    <Text style={styles.mytext}>{salary}</Text>
                 </View>
             </Card>
 
             <View style={{flexDirection:"row",justifyContent:"space-around"}}>
                 <Button icon="account-edit" mode="contained" theme={theme} onPress={() =>console.log('Pressed')}>
-                    Update Data
+                    Update Profile
                 </Button>
                 <Button icon="delete" mode="contained" theme={theme} onPress={() =>console.log('Pressed')}>
                     Fire Employee
