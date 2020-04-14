@@ -1,16 +1,39 @@
 import React,{useState} from 'react';
-import { StyleSheet, Text, View,Modal,Alert } from 'react-native';
+import { StyleSheet, Text, View,Modal,Alert,KeyboardAvoidingView} from 'react-native';
 import {TextInput,Button} from 'react-native-paper'
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 
-const CreateEmployee = ()=>{
-    const [Name,setName] = useState("")
+const CreateEmployee = ({navigation})=>{
+    const [name,setName] = useState("")
     const [phone,setPhone] = useState("")
     const [email,setEmail] = useState("")
     const [salary,setSalary] = useState("")
     const [picture,setPicture] = useState("")
+    const [position,setPosition] = useState("")
     const [modal,setModal] = useState(false)
+
+    const submitData = () =>{
+        //fetch dengan ngrok dependencies diganti setiap 7 jam
+        fetch("http://20191539.ngrok.io/send-data",{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({
+                name,
+                email,
+                phone,
+                salary,
+                picture,
+                position
+            })
+        })
+        .then(res=>res.json())
+        .then(data=>{
+            Alert.alert(`${data.name} saved success`)
+        })
+    }
 
 const pickFromGallery = async ()=>{
     const {granted} = await Permissions.askAsync(Permissions.CAMERA_ROLL)
@@ -21,9 +44,18 @@ const pickFromGallery = async ()=>{
             aspect:[1,1],
             quality:0.5
         })
-        console.log(data)
+        if(!data.cancelled){
+            let newfile = { 
+                uri:data.uri,
+                type:`test/${data.uri.split(".")[1]}`,
+                name:`test.${data.uri.split(".")[1]}`
+
+            }
+            handleUpload(newfile)
+        }
     }else{
         Alert.alert("you need to give a permission to work")
+        navigation.navigate("Home")
     }
 }
 
@@ -36,19 +68,43 @@ const pickFromCamera = async ()=>{
             aspect:[1,1],
             quality:0.5
         })
-        console.log(data)
+        if(!data.cancelled){
+            let newfile = {
+                uri:data.uri,
+                type:`test/${data.uri.split(".")[1]}`,
+                name:`test.${data.uri.split(".")[1]}`
+        }
+        handleUpload(newfile)
+        }
     }else{
         Alert.alert("you need to give a permission to work")
     }
 }
 
+const handleUpload = (image)=>{
+    const data = new FormData()
+    data.append('file',image)
+    data.append('upload_preset','kerjaApp')
+    data.append("cloud_name","dte29rquo")
+
+    fetch("https://api.cloudinary.com/v1_1/dte29rquo/image/upload",{
+        method:"post",
+        body:data
+    }).then(res=>res.json()).
+    then(data=>{
+        setPicture(data.url)
+    })
+}
+
 
     return(
-        <View style={styles.root}>
+
+        <View>
+
             <TextInput
                     label='Name'
                     style={styles.inputStyle}
-                    value={Name}
+                    value={name}
                     theme={theme}
                     mode="outlined"
                     onChangeText={text => setName(text)}
@@ -78,15 +134,24 @@ const pickFromCamera = async ()=>{
                     mode="outlined"
                     onChangeText={text => setSalary(text)}
             />
+            <TextInput
+                    label='Position'
+                    style={styles.inputStyle}
+                    value={position}
+                    theme={theme}
+                    mode="outlined"
+                    onChangeText={text => setPosition(text)}
+            />
 
-            <Button icon="upload" mode="contained" style={styles.inputStyle} theme={theme} onPress={() => setModal(true)}>
+            <Button icon={picture==""?"upload":"upload"} mode="contained" style={styles.inputStyle} theme={theme} onPress={() => setModal(true)}>
                 Upload Image
             </Button>
-            <Button icon="content-save" mode="contained" style={styles.inputStyle} theme={theme} onPress={() => console.log("saved")}>
+            <Button icon="content-save" mode="contained" style={styles.inputStyle} theme={theme} onPress={()=>submitData()}>
                 Saved
             </Button>
 
-            <Modal animationType="slide" transparent={false} visible={modal} onRequestClose={()=>{setModal(false)
+            {/* menampilkan modal menuju pilihan menu upload */}
+            <Modal animationType="slide" transparent={true} visible={modal} onRequestClose={()=>{setModal(false)
             }}>
                 <View style={styles.modalView}>
                     <View style={styles.modalButtonView}>
@@ -102,8 +167,7 @@ const pickFromCamera = async ()=>{
                     </Button>
                 </View>
             </Modal>
-        </View>
-
+         </View>
     )
 }
 

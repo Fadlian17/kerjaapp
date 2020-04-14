@@ -1,15 +1,20 @@
-import React from 'react';
-import { StyleSheet, Text, View,Image,FlatList } from 'react-native';
+import React,{useEffect,useState} from 'react';
+import { StyleSheet, Text, View,Image,FlatList,ActivityIndicator} from 'react-native';
 import {Card,FAB} from 'react-native-paper'
 
 const Home = ({navigation})=>{
-    const data = [
-        {id:"1",name:"Alfa",email:"alfa@admin.com",salary:"Rp. 8.000.000",phone:"623412",position:"Developer",picture:"https://images.unsplash.com/photo-1505247964246-1f0a90443c36?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"},
-        {id:"2",name:"Dimas",email:"dimasa@admin.com",salary:"Rp.2.000.000",phone:"623412",position:"Designer",picture:"https://images.unsplash.com/photo-1505247964246-1f0a90443c36?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"},
-        {id:"3",name:"Jabriel",email:"jabrie@admin.com",salary:"Rp. 4.000.000",phone:"623412",position:"Scientist",picture:"https://images.unsplash.com/photo-1505247964246-1f0a90443c36?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"},
-        {id:"4",name:"Daffa",email:"daffa@admin.com",salary:"Rp. 7.000.000",phone:"623412",position:"Engineering",picture:"https://images.unsplash.com/photo-1505247964246-1f0a90443c36?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"},
-
-    ]
+    const [data,setData] = useState([])
+    const [loading,setLoading]= useState(true)
+    useEffect(()=>{
+        //fetch dengan ngrok dependencies
+        fetch("http://20191539.ngrok.io")
+        .then(res=>res.json())
+        .then(results=>{
+            console.log(results)
+            setData(results)
+            setLoading(false)
+        }) 
+    },[])
     const renderList = ((item)=>{
         return(
             <Card style={styles.mycard}
@@ -19,7 +24,7 @@ const Home = ({navigation})=>{
                 <View style={styles.cardView}>
                 <Image
                     style={{width:60,height:60,borderRadius:30}}
-                    source={{uri:"https://images.unsplash.com/photo-1505247964246-1f0a90443c36?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60"}}
+                    source={{uri:item.picture}}
                 
                 />    
                     <View style={{marginLeft:10},{flex:1}}>
@@ -32,19 +37,23 @@ const Home = ({navigation})=>{
     })
     return(
         <View style={{flex:1}}>
+            {loading?
+            <ActivityIndicator size="large" color="#0000ff"/>
+            :
             <FlatList
                 data={data}
                 renderItem={({item})=>{
                 return renderList(item)
                 }}
-                keyExtractor={item=>item.id}
+                keyExtractor={item=>item._id}
             />
+            }
+            
            <FAB onPress={()=>navigation.navigate("Create")}
             style={styles.fab}
             small
             icon="plus"
-            theme={{colors:{accent:"#006aff"}}}
-        />
+            theme={{colors:{accent:"#006aff"}}}/>
         </View>
     )
 }
