@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View,Image,Linking,Platform } from 'react-native';
+import { StyleSheet, Text, View,Image,Linking,Platform, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Title,Card,Button } from 'react-native-paper'
 import {MaterialIcons,Entypo} from '@expo/vector-icons'
@@ -7,12 +7,32 @@ import {MaterialIcons,Entypo} from '@expo/vector-icons'
 const Profile = (props)=>{
 
     const {_id,name,picture,phone,salary,email,position} = props.route.params.item
+    const deleteEmployee = ()=>{
+        //fetch dengan ngrok dependencies diganti setiap 7 jam
+        fetch("http://1b9cb498.ngrok.io/delete",{
+            method:"post",
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({
+                id:_id
+            })
+        })
+        .then(res=>res.json())
+        .then(deleteEmp=>{
+            Alert.alert(`${deleteEmp.name} deleted`)
+            props.navigation.navigate("Home")
+        })
+        .catch(err=>{
+            Alert.alert("something went wrong")
+        })
+    }
 
     const openDial=()=>{
         if(Platform.OS === "android"){
-            Linking.openURL("tel:623412")
+            Linking.openURL(`tel:${phone}`)
         }else{
-            Linking.openURL("telprompt:623412")
+            Linking.openURL(`telprompt:${phone}`)
         }
 
     }
@@ -34,7 +54,7 @@ const Profile = (props)=>{
                 <Title>{name}</Title>
                 <Title style={{fontSize:15}}>{position}</Title>
             </View>
-            <Card style={styles.mycard} onPress={()=>{Linking.openURL("mailto:alfa@admin.com")}}>
+            <Card style={styles.mycard} onPress={()=>{Linking.openURL(`mailto:${email}`)}}>
                 <View style={styles.cardContent}>
                     <MaterialIcons name="email" size={32} color="#006aff" />
                     <Text style={styles.mytext}>{email}</Text>
@@ -55,10 +75,14 @@ const Profile = (props)=>{
             </Card>
 
             <View style={{flexDirection:"row",justifyContent:"space-around"}}>
-                <Button icon="account-edit" mode="contained" theme={theme} onPress={() =>console.log('Pressed')}>
+                <Button icon="account-edit" mode="contained" theme={theme} onPress={() =>{
+                    props.navigation.navigate("Create",
+                    {_id,name,picture,phone,salary,email,position}
+                    )
+                }}>
                     Update Profile
                 </Button>
-                <Button icon="delete" mode="contained" theme={theme} onPress={() =>console.log('Pressed')}>
+                <Button icon="delete" mode="contained" theme={theme} onPress={() =>deleteEmployee()}>
                     Fire Employee
                 </Button>
             </View>

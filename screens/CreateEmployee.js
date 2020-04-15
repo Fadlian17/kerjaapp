@@ -4,18 +4,38 @@ import {TextInput,Button} from 'react-native-paper'
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 
-const CreateEmployee = ({navigation})=>{
-    const [name,setName] = useState("")
-    const [phone,setPhone] = useState("")
-    const [email,setEmail] = useState("")
-    const [salary,setSalary] = useState("")
-    const [picture,setPicture] = useState("")
-    const [position,setPosition] = useState("")
+const CreateEmployee = ({navigation,route})=>{
+    const getDetails = (type)=>{
+        if(route.params){
+            switch(type){
+                case "name":
+                    return route.params.name
+                case "phone":
+                    return route.params.phone
+                case "email":
+                    return route.params.email
+                case "salary":
+                    return route.params.salary
+                case "picture":
+                    return route.params.picture   
+                case "position":
+                    return route.params.position
+            }
+        }   
+        return ""        
+    }
+    const [name,setName] = useState(getDetails("name"))
+    const [phone,setPhone] = useState(getDetails("phone"))
+    const [email,setEmail] = useState(getDetails("email"))
+    const [salary,setSalary] = useState(getDetails("salary"))
+    const [picture,setPicture] = useState(getDetails("picture"))
+    const [position,setPosition] = useState(getDetails("position"))
     const [modal,setModal] = useState(false)
+    const [enableshift,setenableShift] = useState(false)
 
     const submitData = () =>{
         //fetch dengan ngrok dependencies diganti setiap 7 jam
-        fetch("http://20191539.ngrok.io/send-data",{
+        fetch("http://1b9cb498.ngrok.io/send_data",{
             method:'POST',
             headers:{
                 'Content-Type':'application/json'
@@ -31,7 +51,38 @@ const CreateEmployee = ({navigation})=>{
         })
         .then(res=>res.json())
         .then(data=>{
-            Alert.alert(`${data.name} saved success`)
+            Alert.alert(`${data.name} saved succested`)
+            navigation.navigate("Home")
+        })
+        .catch(err=>{
+            Alert.alert("something went wrong")
+        })
+    }
+
+    const updateDetails= ()=>{
+        //fetch dengan ngrok dependencies diganti setiap 7 jam
+        fetch("http://1b9cb498.ngrok.io/update",{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({
+                id:route.params._id,
+                name,
+                email,
+                phone,
+                salary,
+                picture,
+                position
+            })
+        })
+        .then(res=>res.json())
+        .then(data=>{
+            Alert.alert(`${data.name} is updated`)
+            navigation.navigate("Profile")
+        })
+        .catch(err=>{
+            Alert.alert("something went wrong")
         })
     }
 
@@ -86,19 +137,21 @@ const handleUpload = (image)=>{
     data.append('file',image)
     data.append('upload_preset','kerjaApp')
     data.append("cloud_name","dte29rquo")
-
+    //Developer88!
     fetch("https://api.cloudinary.com/v1_1/dte29rquo/image/upload",{
         method:"post",
         body:data
     }).then(res=>res.json()).
     then(data=>{
         setPicture(data.url)
+    }).catch(err=>{
+        Alert.alert("something went wrong")
     })
 }
 
 
     return(
-
+        <KeyboardAvoidingView behavior="position" style={styles.root} enabled={enableshift}>
         <View>
 
             <TextInput
@@ -106,6 +159,7 @@ const handleUpload = (image)=>{
                     style={styles.inputStyle}
                     value={name}
                     theme={theme}
+                    onFocus={()=>setenableShift(false)}
                     mode="outlined"
                     onChangeText={text => setName(text)}
             />
@@ -114,6 +168,7 @@ const handleUpload = (image)=>{
                     style={styles.inputStyle}
                     value={email}
                     theme={theme}
+                    onFocus={()=>setenableShift(false)}
                     mode="outlined"
                     onChangeText={text => setEmail(text)}
             />
@@ -122,6 +177,7 @@ const handleUpload = (image)=>{
                     style={styles.inputStyle}
                     value={phone}
                     theme={theme}
+                    onFocus={()=>setenableShift(false)}
                     keyboardType="number-pad"
                     mode="outlined"
                     onChangeText={text => setPhone(text)}
@@ -131,6 +187,7 @@ const handleUpload = (image)=>{
                     style={styles.inputStyle}
                     value={salary}
                     theme={theme}
+                    onFocus={()=>setenableShift(true)}
                     mode="outlined"
                     onChangeText={text => setSalary(text)}
             />
@@ -139,16 +196,23 @@ const handleUpload = (image)=>{
                     style={styles.inputStyle}
                     value={position}
                     theme={theme}
+                    onFocus={()=>setenableShift(true)}
                     mode="outlined"
                     onChangeText={text => setPosition(text)}
             />
 
-            <Button icon={picture==""?"upload":"upload"} mode="contained" style={styles.inputStyle} theme={theme} onPress={() => setModal(true)}>
+            <Button icon={picture==""?"upload":"check"} mode="contained" style={styles.inputStyle} theme={theme} onPress={() => setModal(true)}>
                 Upload Image
             </Button>
-            <Button icon="content-save" mode="contained" style={styles.inputStyle} theme={theme} onPress={()=>submitData()}>
-                Saved
+            {route.params?
+            <Button icon="content-save" mode="contained" style={styles.inputStyle} theme={theme} onPress={()=>updateDetails()}>
+                Update Profile
             </Button>
+            :
+            <Button icon="content-save" mode="contained" style={styles.inputStyle} theme={theme} onPress={()=>submitData()}>
+                save
+            </Button>
+            }
 
             {/* menampilkan modal menuju pilihan menu upload */}
             <Modal animationType="slide" transparent={true} visible={modal} onRequestClose={()=>{setModal(false)
@@ -168,6 +232,7 @@ const handleUpload = (image)=>{
                 </View>
             </Modal>
          </View>
+        </KeyboardAvoidingView>
     )
 }
 

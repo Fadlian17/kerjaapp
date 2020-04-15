@@ -1,20 +1,42 @@
-import React,{useEffect,useState} from 'react';
-import { StyleSheet, Text, View,Image,FlatList,ActivityIndicator} from 'react-native';
+import React,{useEffect,useState,useContext} from 'react';
+import { StyleSheet, Text, View,Image,FlatList, Alert} from 'react-native';
 import {Card,FAB} from 'react-native-paper'
+import {useSelector,useDispatch} from 'react-redux'
+import {Mycontext} from '../App'
 
 const Home = ({navigation})=>{
-    const [data,setData] = useState([])
-    const [loading,setLoading]= useState(true)
-    useEffect(()=>{
+    // const [data,setData] = useState([])
+    // const [loading,setLoading]= useState(true)
+    // const dispatch = useDispatch()
+    // const {data,loading} = useSelector((state)=>{
+    //     return state
+    // })
+    const {state,dispatch} = useContext(Mycontext)
+    const {data,loading} = state
+    
+    console.log(data,loading)
+
+    const fetchData = ()=>{
         //fetch dengan ngrok dependencies
-        fetch("http://20191539.ngrok.io")
+        fetch("http://1b9cb498.ngrok.io")
         .then(res=>res.json())
         .then(results=>{
-            console.log(results)
-            setData(results)
-            setLoading(false)
-        }) 
+
+            // setData(results)
+            // setLoading(false)
+            dispatch({type:"ADD_DATA",payload:results})
+            dispatch({type:"SET_LOADING",payload:false})
+        
+        }).catch(err=>{
+            Alert.alert("something went wrong")
+        })
+    }
+
+
+    useEffect(()=>{
+        fetchData()
     },[])
+
     const renderList = ((item)=>{
         return(
             <Card style={styles.mycard}
@@ -35,19 +57,18 @@ const Home = ({navigation})=>{
             </Card>
         )
     })
+    
     return(
         <View style={{flex:1}}>
-            {loading?
-            <ActivityIndicator size="large" color="#0000ff"/>
-            :
             <FlatList
-                data={data}
+                data={data} 
                 renderItem={({item})=>{
                 return renderList(item)
                 }}
                 keyExtractor={item=>item._id}
+                onRefresh={()=>fetchData()}
+                refreshing={loading}
             />
-            }
             
            <FAB onPress={()=>navigation.navigate("Create")}
             style={styles.fab}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{createContext,useReducer} from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Constants from 'expo-constants'
 import Home from './screens/Home'
@@ -7,9 +7,17 @@ import Profile from './screens/Profile';
 
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack'
+import {createStore} from 'redux'
+import {Provider} from 'react-redux'
+import {reducer,initState} from './reducers/reducer'
 
+// const store = createStore(reducer)
+
+export const Mycontext = createContext()
 
 const Stack = createStackNavigator();
+
+
 const myOptions= {
     title:"Kerjaapp",
     component:{Home},
@@ -32,17 +40,24 @@ const myOptions= {
 }
 
 export default ()=>{
+  const [state,dispatch] = useReducer(reducer,initState)
+
+
   return(
+    <Mycontext.Provider value={
+      {state,dispatch}
+    }>
    <NavigationContainer>
      <App />
    </NavigationContainer>
+   </Mycontext.Provider>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ebebeb",
+    backgroundColor: "#e0e0e0",
     marginTop:Constants.statusBarHeight
   },
 });
